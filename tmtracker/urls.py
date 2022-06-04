@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from ticketscraping.scraping import getReese84Token
+from ticketscraping.scraping import start
 from utils import get_db_handle
+from datetime import datetime
+import requests
 
 get_db_handle('tickets')
 print("=== database connection is established ===")
-getReese84Token()
+print(f"server started at {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+start()
 
 urlpatterns = [
     path('admin/', admin.site.urls),

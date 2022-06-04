@@ -1,57 +1,43 @@
 import os
-import re
+import sched
+import time
 import json
 import requests
 import subprocess
 from . import constants
+from threading import Semaphore
+from .prepare_reese84token import getReese84Token
+
+s = sched.scheduler(time.time, time.sleep)
+token_semaphore = Semaphore(1)
+reese84_token = {}
+    
+
+def obtainReese84Token(sch):
+    global reese84_token, token_semaphore
+    token_semaphore.acquire()
+    reese84_token = getReese84Token()
+    token_semaphore.release()
+    print(reese84_token)
+    sch.enter(reese84_token['renewInSec'] -
+              constants.TOKEN_RENEW_SEC_OFFSET, constants.TOKEN_RENEW_PRIORITY, obtainReese84Token, (sch,))
 
 
-def readFileContentToString(filename):
-    f = open(filename, 'r')
-    content = f.read()
-    f.close()
-    return content
+def ticket_scraping(sch):
+    global reese84_token, token_semaphore
+    token_semaphore.acquire()
+    top_picks_url = constants.get_top_picks_url(constants.EVENT_ID)
+    top_picks_q_params_str = constants.get_top_picks_query_params_str(2, (0, 200))
+    top_picks_url = top_picks_url + top_picks_q_params_str
+    top_picks_header = constants.get_top_picks_header()
+    res = requests.get(top_picks_url, headers=top_picks_header,
+                       cookies=dict(reese84=reese84_token['token']))
+    token_semaphore.release()
+    print(res.json())
+    sch.enter(constants.TICKET_SCRAPING_INTERVAL,
+              constants.TICKET_SCRAPING_PRIORITY, ticket_scraping, (sch,))
 
-def getReese84Token():
-    # fetch the javascript that generates the reese84
-    antibot_js_code_full = requests.get(constants.ANTIBOT_JS_CODE_URL).text
-
-    # trim the code to the function that is only used
-    match_obj = re.search(constants.FN_MATCHING_REGEX, antibot_js_code_full)
-    if not match_obj:
-        return None
-    start, end = match_obj.span()
-    antibot_js_code_trim = antibot_js_code_full[start:end]
-
-    # inject the code to the javascript
-    injector_js_code_loc = os.path.join(
-        os.path.dirname(__file__), constants.INJECTOR_LOCATION)
-    injector_header_js_code_loc = os.path.join(os.path.dirname(
-        __file__), constants.INJECTOR_HEADER_LOCATION)
-    injector_js_code, injector_header_js_code = readFileContentToString(
-        injector_js_code_loc), readFileContentToString(injector_header_js_code_loc)
-    runnable_js_code = injector_header_js_code + \
-        antibot_js_code_trim + injector_js_code
-
-    # save the runnable js code
-    runnable_file_loc = os.path.join(os.path.dirname(
-        __file__), constants.RENNABLE_FILENAME)
-    runnable_file = open(runnable_file_loc, "w")
-    runnable_file.write(runnable_js_code)
-    runnable_file.close()
-
-    # run the js code using local node.js
-    res = subprocess.run(
-        ["node", runnable_file_loc], capture_output=True)
-    token_str = res.stdout
-
-    # produce the reese84 object
-    token = json.loads(token_str)
-    print(token)
-
-    # invoke the get token api to get the reese84 token
-    # TO-DO
-
-
-# invoke the top-picks api to get the tickets
-# TO-DO
+def start():
+    obtainReese84Token(s)
+    ticket_scraping(s)
+    s.run()
