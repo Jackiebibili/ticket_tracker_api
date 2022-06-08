@@ -1,9 +1,11 @@
 import os
+from re import S
 import sched
 import time
 import json
 import requests
 import subprocess
+from threading import Thread
 from . import constants
 from threading import Semaphore
 from .prepare_reese84token import getReese84Token
@@ -39,7 +41,7 @@ class Reese84TokenUpdating():
         if self.is_running: return
         self.is_running = True
         self.initialize_reese84_token()
-        self.scheduler.run(False)
+        self.scheduler.run()
     
 
 
@@ -54,6 +56,7 @@ class TicketScraping():
 
     def ticket_scraping(self):
         if self.token_gen.token_semaphore._value <= 0:
+            print("I am in the if statement")
             # retry after a delay
             self.scheduler.enter(constants.TICKET_SCRAPING_TOKEN_AWAIT_MAX_INTERVAL,
                                  constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
@@ -64,7 +67,8 @@ class TicketScraping():
         top_picks_header = constants.get_top_picks_header()
         res = requests.get(top_picks_url, headers=top_picks_header, params=top_picks_q_params,
                            cookies=dict(reese84=self.token_gen.reese84_token['token']))
-        print(res.json())
+        # print(res.json())
+        print("Epoch is finished, this is output:")
         self.scheduler.enter(constants.TICKET_SCRAPING_INTERVAL,
                   constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
     
@@ -74,11 +78,13 @@ class TicketScraping():
             return
         self.is_running = True
         self.ticket_scraping()
-        self.scheduler.run(False)
+        self.scheduler.run()
 
 
 def start():
     reese_token_gen = Reese84TokenUpdating()
     ticket_scraping = TicketScraping(reese_token_gen)
-    reese_token_gen.start()
-    ticket_scraping.start()
+    serverThread_reese = Thread(target=reese_token_gen.start)
+    serverThread_ticket_scraping = Thread(target=ticket_scraping.start)
+    serverThread_reese.start()
+    serverThread_ticket_scraping.start()
