@@ -77,7 +77,7 @@ class TicketScraping():
         self.is_running = True
         self.ticket_scraping()
         # randomize start time to scatter out event of API fetching
-        time.sleep(self.initialDelay)
+        time.sleep(self.initialDelay) 
         self.scheduler.run()
 
 
