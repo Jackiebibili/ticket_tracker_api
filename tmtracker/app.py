@@ -9,6 +9,5 @@ class MyAppConfig(AppConfig):
    
    def ready(self):
       print(f"server started at {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-      get_db_handle('tickets')
       print("=== database connection is established ===")
       start()
