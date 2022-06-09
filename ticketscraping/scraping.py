@@ -1,10 +1,7 @@
-import os
-from re import S
 import sched
 import time
-import json
+import random
 import requests
-import subprocess
 from threading import Thread
 from . import constants
 from threading import Semaphore
@@ -47,16 +44,17 @@ class Reese84TokenUpdating():
 
 class TicketScraping():
     def __init__(self, token_generator: Reese84TokenUpdating, event_id = constants.EVENT_ID, num_seats=2, price_range=(0, 200)):
+        self.is_running = False
         self.event_id = event_id
         self.num_seats = num_seats
         self.price_range = price_range
         self.token_gen = token_generator
         self.scheduler = sched.scheduler(time.time, time.sleep)
-        self.is_running = False
+        self.initialDelay = random.randint(
+            1, constants.TICKET_SCRAPING_INTERVAL)
 
     def ticket_scraping(self):
         if self.token_gen.token_semaphore._value <= 0:
-            print("I am in the if statement")
             # retry after a delay
             self.scheduler.enter(constants.TICKET_SCRAPING_TOKEN_AWAIT_MAX_INTERVAL,
                                  constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
@@ -68,23 +66,32 @@ class TicketScraping():
         res = requests.get(top_picks_url, headers=top_picks_header, params=top_picks_q_params,
                            cookies=dict(reese84=self.token_gen.reese84_token['token']))
         # print(res.json())
-        print("Epoch is finished, this is output:")
+        print("Got the ticket info from TM. /", res.status_code)
         self.scheduler.enter(constants.TICKET_SCRAPING_INTERVAL,
                   constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
-    
+
     def start(self):
         # if the scheduler is already started - do nothing
         if self.is_running:
             return
         self.is_running = True
         self.ticket_scraping()
+        # randomize start time to scatter out event of API fetching
+        time.sleep(self.initialDelay)
         self.scheduler.run()
 
 
 def start():
     reese_token_gen = Reese84TokenUpdating()
-    ticket_scraping = TicketScraping(reese_token_gen)
     serverThread_reese = Thread(target=reese_token_gen.start)
-    serverThread_ticket_scraping = Thread(target=ticket_scraping.start)
+
+    scraping_list = []
+    for i in range(1, constants.TICKET_SCRAPING_INTERVAL):
+        ticket_scraping = TicketScraping(reese_token_gen)
+        print(ticket_scraping.initialDelay, "s")
+        serverThread_ticket_scraping = Thread(target=ticket_scraping.start)
+        scraping_list.append(serverThread_ticket_scraping)
+
     serverThread_reese.start()
-    serverThread_ticket_scraping.start()
+    for scraping_thread in scraping_list:
+        scraping_thread.start()
