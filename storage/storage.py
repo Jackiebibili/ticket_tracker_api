@@ -1,20 +1,21 @@
 from utils import get_db_handle
 from .base import *
-from uuid import uuid4
 
 # insert one
 def insert_one(collection_name, doc: dict, db_name="tickets"):
    db = get_db_handle(db_name)
-   doc["_id"] = str(uuid4())
    coll = db[collection_name]
+   # additional attributes
+   doc.update(gen_additional_attrs())
    return insert_one__(coll, doc)
 
 # insert many
 def insert_many(collection_name, docs: list, db_name="tickets"):
    db = get_db_handle(db_name)
-   for doc in docs:
-      doc["_id"] = str(uuid4())
    coll = db[collection_name]
+   # additional attributes
+   for doc in docs:
+      doc.update(gen_additional_attrs())
    return insert_many__(coll, docs)
 
 # delete one

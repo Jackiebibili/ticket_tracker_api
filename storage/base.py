@@ -1,4 +1,6 @@
 from pymongo import collection
+from uuid import uuid4
+from datetime import datetime
 
 def insert_one__(coll: collection.Collection, doc: dict):
    return coll.insert_one(doc)
@@ -23,3 +25,9 @@ def find_one__(coll: collection.Collection, filter: dict, projection):
 
 def find_many__(coll: collection.Collection, filter: dict, projection, **kwargs):
    return coll.find(filter=filter, projection=projection, **kwargs)
+
+def gen_additional_attrs():
+   return {
+       "_id": str(uuid4()),
+       "last_modified": datetime.today().replace(microsecond=0)
+   }

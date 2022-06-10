@@ -28,6 +28,7 @@ class Reese84TokenUpdating():
         """
         This method should not be called directly.
         """
+        print("renewing token")
         self.token_semaphore.acquire() # invalidate a token
         self.reese84_token = getReese84Token()
         self.token_semaphore.release()
@@ -44,9 +45,10 @@ class Reese84TokenUpdating():
 
 
 class TicketScraping():
-    def __init__(self, token_generator: Reese84TokenUpdating, event_id = constants.EVENT_ID, num_seats=2, price_range=(0, 200)):
+    def __init__(self, token_generator: Reese84TokenUpdating, event_id, subscribe_id, num_seats=2, price_range=(0, 200)):
         self.is_running = False
         self.event_id = event_id
+        self.subscribe_id = subscribe_id
         self.num_seats = num_seats
         self.price_range = price_range
         self.token_gen = token_generator
@@ -90,10 +92,10 @@ def start():
 
     # ticket scraping threads
     scraping_list = []
-    events = find_many(constants.DATABASE["EVENTS"], {}, {"_id": False})
+    events = find_many(constants.DATABASE["EVENTS"], {})
 
     for evt in events:
-        ticket_scraping = TicketScraping(reese_token_gen, evt["tm_event_id"], evt["ticket_num"], evt["price_range"])
+        ticket_scraping = TicketScraping(reese_token_gen, evt["tm_event_id"], evt["_id"], evt["ticket_num"], evt["price_range"])
         print(ticket_scraping.initialDelay, "s")
         serverThread_ticket_scraping = Thread(target=ticket_scraping.start)
         scraping_list.append(serverThread_ticket_scraping)
