@@ -11,6 +11,10 @@ def get_top_picks_url(
 EVENT_ID = "0C005B5587A017CF"
 BASIC_REQ_HEADER = {"origin": "https://www.ticketmaster.com",
                     "referer": "https://www.ticketmaster.com/"}
+DATABASE = {
+    "EVENTS": "events",
+    "TOP_PICKS": "top-picks"
+}
 def get_top_picks_header(): return {
     **BASIC_REQ_HEADER,
     "tmps-correlation-id": str(uuid4())

@@ -6,6 +6,7 @@ from threading import Thread
 from . import constants
 from threading import Semaphore
 from .prepare_reese84token import getReese84Token
+from storage.storage import *
 
 class Reese84TokenUpdating():
     def __init__(self):
@@ -82,16 +83,20 @@ class TicketScraping():
 
 
 def start():
+    # reese84 token renewing thread
     reese_token_gen = Reese84TokenUpdating()
     serverThread_reese = Thread(target=reese_token_gen.start)
+    serverThread_reese.start()
 
+    # ticket scraping threads
     scraping_list = []
-    for i in range(1, constants.TICKET_SCRAPING_INTERVAL):
-        ticket_scraping = TicketScraping(reese_token_gen)
+    events = find_many(constants.DATABASE["EVENTS"], {}, {"_id": False})
+
+    for evt in events:
+        ticket_scraping = TicketScraping(reese_token_gen, evt["tm_event_id"], evt["ticket_num"], evt["price_range"])
         print(ticket_scraping.initialDelay, "s")
         serverThread_ticket_scraping = Thread(target=ticket_scraping.start)
         scraping_list.append(serverThread_ticket_scraping)
 
-    serverThread_reese.start()
     for scraping_thread in scraping_list:
         scraping_thread.start()
