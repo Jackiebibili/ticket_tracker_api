@@ -36,6 +36,12 @@ def find_one_and_replace(collection_name, filter: dict, new_doc: dict, db_name="
    coll = db[collection_name]
    return find_one_and_replace__(coll, filter, new_doc)
 
+# find one and update
+def find_one_and_update(collection_name, filter: dict, update, db_name="tickets"):
+   db = get_db_handle(db_name)
+   coll = db[collection_name]
+   return find_one_and_update__(coll, filter, update)
+
 # find one and delete
 def find_one_and_delete(collection_name, filter: dict, db_name="tickets"):
    db = get_db_handle(db_name)
@@ -53,3 +59,10 @@ def find_many(collection_name, filter: dict, projection=None, db_name="tickets",
    db = get_db_handle(db_name)
    coll = db[collection_name]
    return list(find_many__(coll, filter, projection, **kwargs))
+
+# watch changes
+def watch(collection_name, db_name="tickets", **kwargs):
+   db = get_db_handle(db_name)
+   coll = db[collection_name]
+   return watch__(coll, **kwargs)
+
