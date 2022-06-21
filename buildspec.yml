@@ -1,0 +1,30 @@
+version: 0.2
+
+env:
+  parameter-store:
+    build_ssh_key: "/Dev/Production/tm-tracker-api/codebuild_ssh_key"
+phases:
+  install:
+    commands:
+      - export DEPLOY_SCRIPT=/home/ec2-user/tm_tracker_api/prod.sh
+      - mkdir -p ~/.ssh
+      - echo "$build_ssh_key" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+  pre_build:
+    commands:
+      - echo Logging into aws ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Deploying the Docker image...
+      - ssh -o "StrictHostKeyChecking no" $SERVER_URL $DEPLOY_SCRIPT
+

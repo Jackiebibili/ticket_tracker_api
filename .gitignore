@@ -3,3 +3,6 @@
 /**/js/antibot-simulation.js
 /**/tmp
 .vscode
+docker-compose.yml
+entrypoint.sh
+prod.sh

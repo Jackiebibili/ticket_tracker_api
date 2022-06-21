@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9259911ae7818b489bf0abc27478bbf67944fe9cc5be7d9c599dd0b6f709fb2b"
+            "sha256": "ca572537bf75c0d755f8765f857264034579affa594b0a8c977315972447bd75"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -37,7 +37,7 @@
                 "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597",
                 "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"
             ],
-            "markers": "python_version >= '3'",
+            "markers": "python_version >= '3.5'",
             "version": "==2.0.12"
         },
         "django": {
@@ -61,7 +61,7 @@
                 "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff",
                 "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"
             ],
-            "markers": "python_version >= '3'",
+            "markers": "python_version >= '3.5'",
             "version": "==3.3"
         },
         "pymongo": {
@@ -155,11 +155,11 @@
         },
         "requests": {
             "hashes": [
-                "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61",
-                "sha256:f22fa1e554c9ddfd16e6e41ac79759e17be9e492b3587efa038054674760e72d"
+                "sha256:bc7861137fbce630f17b03d3ad02ad0bf978c844f3536d0edda6499dafce2b6f",
+                "sha256:d568723a7ebd25875d8d1eaf5dfa068cd2fc8194b2e483d7b1f7c81918dbec6b"
             ],
             "index": "pypi",
-            "version": "==2.27.1"
+            "version": "==2.28.0"
         },
         "sqlparse": {
             "hashes": [
@@ -178,5 +178,22 @@
             "version": "==1.26.9"
         }
     },
-    "develop": {}
+    "develop": {
+        "gunicorn": {
+            "hashes": [
+                "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e",
+                "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8"
+            ],
+            "index": "pypi",
+            "version": "==20.1.0"
+        },
+        "setuptools": {
+            "hashes": [
+                "sha256:1f5d3a1502812025cdb2e5609b6af2d207332e3f50febe6db10ed3a59b2f155f",
+                "sha256:30b6b0fbacc459c90d27a63e6173facfc8b8c99a48fb24b5044f459ba63cd6cf"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==62.3.4"
+        }
+    }
 }

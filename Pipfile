@@ -10,6 +10,7 @@ dnspython = "*"
 requests = "*"
 
 [dev-packages]
+gunicorn = "*"
 
 [requires]
 python_version = "3.9"
