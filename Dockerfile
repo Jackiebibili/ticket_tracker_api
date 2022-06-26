@@ -24,4 +24,4 @@ RUN pip install pipenv
 RUN pipenv install $(test "$DJANGO_ENV" == production || echo "--dev") --deploy --system --ignore-pipfile
 
 # start the server
-CMD ["gunicorn", "tmtracker.wsgi:application", "-w", "4", "-b", "0.0.0.0:8080", "--log-file=/log/message.log"]
+CMD ["gunicorn", "tmtracker.wsgi:application", "-b", "0.0.0.0:8080", "--log-file=/log/message.log"]
