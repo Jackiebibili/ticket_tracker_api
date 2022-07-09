@@ -8,6 +8,7 @@ django = "*"
 pymongo = "*"
 dnspython = "*"
 requests = "*"
+python-dateutil = "*"
 
 [dev-packages]
 gunicorn = "*"

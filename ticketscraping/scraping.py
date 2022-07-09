@@ -8,7 +8,7 @@ from . import constants
 from threading import Semaphore
 from .prepare_reese84token import getReese84Token
 from storage.storage import *
-
+from .seat_analysis import store_seats
 
 class Reese84TokenUpdating():
     def __init__(self):
@@ -86,6 +86,8 @@ class TicketScraping(threading.Thread):
         res = requests.get(top_picks_url, headers=top_picks_header, params=top_picks_q_params,
                            cookies=dict(reese84=self.token_gen.reese84_token['token']))
         # print(res.json())
+        res_obj = res.json()
+        store_seats(res_obj, {'subscribe_req_id': self.subscribe_id})
         print("Got the ticket info from TM. /", res.status_code)
         self.scheduler.enter(constants.TICKET_SCRAPING_INTERVAL,
                              constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
