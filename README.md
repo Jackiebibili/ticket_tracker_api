@@ -1,6 +1,6 @@
-# ticket_tracker_api 
+# Ticketmaster Ticket Tracker API
 ![build badge](https://codebuild.us-east-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiRm1sYWFwSjhaSDA1SWVOR2ZLZlcxc2FoVlp6UUNQQ2pjdDNQYnVobkFnblR4WmdDSWwzaXdTL1JFRy9SUmQxWThCYkR6YUdtR04vN3grZmdlSWFMV2hNPSIsIml2UGFyYW1ldGVyU3BlYyI6IlZUSTJ2bWwvYWZDWWZqdHEiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)\
-Serves as a back-end of concert ticket price tracking based on Ticketmaster real-time best seats. 
+Serves as the back end of concert ticket price tracking based on Ticketmaster real-time best seats. 
 
 ### Installation
 - Dev environment
