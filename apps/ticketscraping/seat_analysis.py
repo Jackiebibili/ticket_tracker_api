@@ -1,6 +1,6 @@
 from dateutil import parser
-from storage.storage import insert_one
-import ticketscraping.constants as constants
+from ..storage.storage import insert_one
+from ..ticketscraping import constants
 
 
 def store_seats(data, scheduler_config):

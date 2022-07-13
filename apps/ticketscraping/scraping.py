@@ -7,7 +7,7 @@ import threading
 from . import constants
 from threading import Semaphore
 from .prepare_reese84token import getReese84Token
-from storage.storage import *
+from ..storage.storage import *
 from .seat_analysis import store_seats
 
 class Reese84TokenUpdating():

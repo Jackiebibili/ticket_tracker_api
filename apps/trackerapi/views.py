@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
-from storage.storage import insert_one, find_one_and_update
-import ticketscraping.constants as constants
+from ..storage.storage import insert_one, find_one_and_update
+from ..ticketscraping import constants
 import json
 
 
