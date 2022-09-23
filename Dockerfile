@@ -17,7 +17,7 @@ RUN apk add --no-cache \
    npm
 
 # js install
-RUN npm run build --prefix /code/ticketscraping/js 
+RUN npm run build --prefix /code/apps/ticketscraping/js 
 
 # python install
 RUN pip install pipenv
