@@ -16,5 +16,5 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    path('tracker-api/', include('trackerapi.urls'))
+    path('tracker-api/', include('apps.trackerapi.urls'))
 ]
