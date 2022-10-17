@@ -87,7 +87,7 @@ class TicketScraping(threading.Thread):
                            cookies=dict(reese84=self.token_gen.reese84_token['token']))
         # print(res.json())
         res_obj = res.json()
-        store_seats(res_obj, {'subscribe_req_id': self.subscribe_id})
+        store_seats(res_obj, self.subscribe_id)
         print("Got the ticket info from TM. /", res.status_code)
         self.scheduler.enter(constants.TICKET_SCRAPING_INTERVAL,
                              constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
