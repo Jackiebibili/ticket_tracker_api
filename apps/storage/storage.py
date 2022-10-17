@@ -10,7 +10,9 @@ def insert_one(collection_name, doc: dict, db_name="tickets"):
    return insert_one__(coll, doc)
 
 # insert many
-def insert_many(collection_name, docs: list, db_name="tickets"):
+def insert_many(collection_name, docs: list[dict], db_name="tickets"):
+   if len(docs) == 0:
+      return True
    db = get_db_handle(db_name)
    coll = db[collection_name]
    # additional attributes

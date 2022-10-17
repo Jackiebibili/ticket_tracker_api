@@ -13,7 +13,9 @@ BASIC_REQ_HEADER = {"origin": "https://www.ticketmaster.com",
                     "referer": "https://www.ticketmaster.com/"}
 DATABASE = {
     "EVENTS": "events",
-    "TOP_PICKS": "top-picks"
+    "TOP_PICKS": "top-picks",
+    "BEST_AVAILABLE_SEATS": "best-available-seats",
+    "BEST_HISTORY_SEATS": "best-history-seats"
 }
 def get_top_picks_header(): return {
     **BASIC_REQ_HEADER,
@@ -31,7 +33,7 @@ def get_top_picks_query_params(qty, priceInterval): return {
     'embed': ['area', 'offer', 'description'],
     'apikey': 'b462oi7fic6pehcdkzony5bxhe',
     'apisecret': 'pquzpfrfz7zd2ylvtz3w5dtyse',
-    'limit': 25,
+    'limit': 100,
     'offset': 0,
     'sort': '-quality',
 }

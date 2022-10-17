@@ -1,9 +1,9 @@
 from dateutil import parser
-from ..storage.storage import insert_one
-from ..ticketscraping import constants
+# from ..storage.storage import insert_one
+# from ..ticketscraping import constants
 
 
-def store_seats(data, subscriber_id):
+def format_seats(data, subscriber_id):
     # prune top-picks data structure
     pruned_picks = prune_pick_attributes(data)
 
@@ -14,10 +14,10 @@ def store_seats(data, subscriber_id):
         remove_embedded_field
     ], pruned_picks, subscriber_id)
 
-    # store in db
-    # print(res)
-    insert_one(constants.DATABASE['TOP_PICKS'], res)
-    pass
+    # # store in db
+    # # print(res)
+    # insert_one(constants.DATABASE['TOP_PICKS'], res)
+    return res
 
 def pipe(fns: list, *args):
     out = args
