@@ -17,6 +17,11 @@ DATABASE = {
     "BEST_AVAILABLE_SEATS": "best-available-seats",
     "BEST_HISTORY_SEATS": "best-history-seats"
 }
+
+# metric thresholds
+PERCENT_OF_CHANGE = 0.5
+PERCENTILE_HISTORY_PRICES = 0.5
+
 def get_top_picks_header(): return {
     **BASIC_REQ_HEADER,
     "tmps-correlation-id": str(uuid4())

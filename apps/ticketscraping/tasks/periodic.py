@@ -1,6 +1,7 @@
 from ...storage.storage import find_many, insert_many, delete_many
 from ...ticketscraping import constants
 from ..models.pick import Pick
+from .asynchronous import run_async_task
 
 def generate_picks_set_from_picks(picks):
    def __helper(pick: dict):
@@ -65,7 +66,7 @@ def run_periodic_task(picks: dict, scraping_id: str):
    # Save C to best_history_seats.
    insert_history_seats(overwritten_seats)
 
-   # TODO
    # Use D to invoke a handler to analyze them against the best_history_seats asynchronously.
-   
+   for seat in new_seats:
+      run_async_task(seat, scraping_id)
    pass
