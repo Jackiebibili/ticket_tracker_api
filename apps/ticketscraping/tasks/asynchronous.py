@@ -2,6 +2,7 @@ from ...storage.storage import count_docs
 from ...storage.query import find_max, find_min, find_many_ascending_order
 from ...ticketscraping import constants
 from ..models.pick import Pick
+from .strategies import similarRank
 
 # metric 1
 
@@ -68,15 +69,18 @@ def run_async_task(pick: Pick, scraping_id: str):
         # If found the exact same seat based on(sec, row?, seat?), get the history price(s) of the seat.
         same_seats = get_exact_same_seats(pick, scraping_id)
 
-        print(f"percent change: {percent_change*100}")
-        print(f"percentile: {percentile*100}")
-        print(f"same seats in chronological order")
-        print(f"new seat price: {pick.price}")
-        print(f"history seat prices:")
-        print(list(map(lambda seat: seat.get('price', -1), same_seats)))
-
-        # TODO
         # Alert the user based on alert conditions
+        count, seats = similarRank.price_decrease_similar_rank(
+            pick, scraping_id)
+        if(count > 0):
+            print(f"percent change: {percent_change*100}")
+            print(f"percentile: {percentile*100}")
+            print(f"same seats in chronological order")
+            print(f"new seat - price: {pick.price} rank: {pick.quality} section: {pick.section} row: {pick.row}")
+            print(f"history exact same seat prices:")
+            print(list(map(lambda seat: seat.get('price', -1), same_seats)))
+            print(f"strategy compared to history seat ({count}) prices:")
+            print(list(map(lambda seat: f"sec: {seat.get('section')}; row: {seat.get('row')}; rank: {seat.get('quality')}; price: {seat.get('price')}", seats)))
 
     except Exception as ex:
         print(ex)
