@@ -3,18 +3,19 @@ from email.message import EmailMessage
 import os
 from dotenv import load_dotenv, find_dotenv
 
+port = 465  # For starttls
+smtp_server = "smtp.gmail.com"
+sender_email = "noreply.ticketmasterbestseat@gmail.com"
+subject = "Message from Ticketmaster Ticket-Tracker"
+
 
 
 def send_email(to_email, message):
 
     load_dotenv(find_dotenv())
 
-    port = 465  # For starttls
-    smtp_server = "smtp.gmail.com"
-    sender_email = "noreply.ticketmasterbestseat@gmail.com"
     receiver_email = to_email
     password = "?????????" # The password is stored in local
-    subject = "Message from Ticketmaster Ticket-Tracker"
 
     message = """\
     Subject: Hi there
