@@ -1,14 +1,7 @@
 import smtplib, ssl
 from email.message import EmailMessage
-import os
 from dotenv import load_dotenv, find_dotenv
-
-port = 465  # For starttls
-smtp_server = "smtp.gmail.com"
-sender_email = "noreply.ticketmasterbestseat@gmail.com"
-subject = "Message from Ticketmaster Ticket-Tracker"
-
-
+from constants import * 
 
 def send_email(to_email, message):
 
