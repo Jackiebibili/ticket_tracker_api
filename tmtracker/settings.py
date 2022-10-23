@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     # 'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.startup',
+    # 'apps.startup',
     'apps.trackerapi',
 ]
 

@@ -1,3 +1,4 @@
+from functools import reduce
 from uuid import uuid4
 
 ANTIBOT_JS_CODE_URL = "https://epsf.ticketmaster.com/eps-d"
@@ -18,20 +19,38 @@ DATABASE = {
     "BEST_HISTORY_SEATS": "best-history-seats"
 }
 
+SUBSCRIBE_REQUEST_PROPS = {
+    'NAME': 'name',
+    'TARGET_PRICE': 'target_price',
+    'TOLERANCE': 'tolerance',
+    'TICKET_NUM': 'ticket_num',
+    'TM_EVENT_ID': 'tm_event_id'
+}
+
+def filter_obj_from_attrs(obj, atts: dict[str,str]):
+    res = {}
+    for key in atts.values():
+        if key in obj:
+            res[key] = obj[key]
+    return res
+
+
 # metric thresholds
+MINIMUM_HISTORY_DATA = 3
 PERCENT_OF_CHANGE = 0.5
-PERCENTILE_HISTORY_PRICES = 0.5
+PERCENTILE_HISTORY_PRICES = 0.25
+ALERT_SEATS_MAX_COUNT = 3
 
 def get_top_picks_header(): return {
     **BASIC_REQ_HEADER,
     "tmps-correlation-id": str(uuid4())
 }
 
-def get_top_picks_query_params(qty, priceInterval): return {
+def get_top_picks_query_params(qty: int, target_price: int, tolerance: int): return {
     'show': 'places maxQuantity sections',
     'mode': 'primary:ppsectionrow resale:ga_areas platinum:all',
     'qty': qty,
-    'q': f"and(not(\'accessible\'),any(listprices,$and(gte(@,{priceInterval[0]}),lte(@,{priceInterval[1]}))))",
+    'q': f"and(not(\'accessible\'),any(listprices,$and(gte(@,{target_price - tolerance}),lte(@,{target_price + tolerance}))))",
     'includeStandard': 'true',
     'includeResale': 'true',
     'includePlatinumInventoryType': 'false',

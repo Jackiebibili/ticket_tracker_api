@@ -11,4 +11,5 @@ class MyAppConfig(AppConfig):
    def ready(self):
       print(
           f"server started at {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+      # start scraping
       Thread(target=start).start()
