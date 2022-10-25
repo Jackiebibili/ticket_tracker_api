@@ -2,6 +2,7 @@
 /**/js/node_modules
 /**/js/antibot-simulation.js
 /**/tmp
+/**/.DS_Store
 .vscode
 docker-compose.yml
 entrypoint.sh
