@@ -51,28 +51,16 @@ def find_one_and_delete(collection_name, filter: dict, db_name="tickets"):
    return find_one_and_delete__(coll, filter)
 
 # find one
-def find_one(collection_name, filter: dict, projection=None, db_name="tickets", **kwargs):
+def find_one(collection_name, filter: dict, projection=None, db_name="tickets"):
    db = get_db_handle(db_name)
    coll = db[collection_name]
-   return find_one__(coll, filter, projection, **kwargs)
+   return find_one__(coll, filter, projection)
 
 # find many
 def find_many(collection_name, filter: dict, projection=None, db_name="tickets", **kwargs):
    db = get_db_handle(db_name)
    coll = db[collection_name]
    return list(find_many__(coll, filter, projection, **kwargs))
-
-# count with filter
-def count_docs(collection_name, filter: dict, db_name="tickets"):
-   db = get_db_handle(db_name)
-   coll = db[collection_name]
-   return count_docs__(coll, filter)
-
-# count all docs in a collection
-def estimated_count_docs(collection_name, db_name="tickets"):
-   db = get_db_handle(db_name)
-   coll = db[collection_name]
-   return estimated_count_docs__(coll)
 
 # watch changes
 def watch(collection_name, db_name="tickets", **kwargs):

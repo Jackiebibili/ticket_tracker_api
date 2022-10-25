@@ -6,7 +6,7 @@ import subprocess
 from . import constants
 
 
-def getReese84Token()->tuple[str, int]:
+def getReese84Token():
     def readFileContentToString(filename):
         f = open(filename, 'r')
         content = f.read()
@@ -19,7 +19,7 @@ def getReese84Token()->tuple[str, int]:
     # trim the code to the function that is only used
     match_obj = re.search(constants.FN_MATCHING_REGEX, antibot_js_code_full)
     if not match_obj:
-        raise Exception('reese84 manufacture fails')
+        return None
     start, end = match_obj.span()
     antibot_js_code_trim = antibot_js_code_full[start:end]
 
@@ -51,5 +51,4 @@ def getReese84Token()->tuple[str, int]:
     # invoke the get token api to get the reese84 token
     token_json_res = requests.post(
         constants.TOKEN_INTERROGATION_URL, headers=constants.BASIC_REQ_HEADER, json=token)
-    json_obj = token_json_res.json()
-    return json_obj['token'], json_obj['renewInSec']
+    return token_json_res.json()

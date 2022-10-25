@@ -1,4 +1,4 @@
-from pymongo.mongo_client import MongoClient
+from pymongo import MongoClient
 from secret import CONN_SRV
 
 client = MongoClient(CONN_SRV)

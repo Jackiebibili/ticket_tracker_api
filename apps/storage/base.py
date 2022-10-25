@@ -30,17 +30,11 @@ def find_one_and_update__(coll: collection.Collection, filter: dict, update=dict
 def find_one_and_delete__(coll: collection.Collection, filter: dict):
    return coll.find_one_and_delete(filter)
 
-def find_one__(coll: collection.Collection, filter: dict, projection, **kwargs):
-   return coll.find_one(filter=filter, projection=projection, **kwargs)
+def find_one__(coll: collection.Collection, filter: dict, projection):
+   return coll.find_one(filter=filter, projection=projection)
 
 def find_many__(coll: collection.Collection, filter: dict, projection, **kwargs):
    return coll.find(filter=filter, projection=projection, **kwargs)
-
-def count_docs__(coll: collection.Collection, filter: dict):
-   return coll.count_documents(filter=filter)
-
-def estimated_count_docs__(coll: collection.Collection):
-   return coll.estimated_document_count()
 
 def watch__(coll: collection.Collection, **kwargs):
    return coll.watch(**kwargs)
