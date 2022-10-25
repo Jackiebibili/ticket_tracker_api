@@ -1,35 +1,41 @@
-import smtplib, ssl
+from smtplib import SMTP_SSL
+from ssl import create_default_context
 from email.message import EmailMessage
-from constants import *
+from . import constants
 
-password = app_password # The password is stored in local
 
 def init_server():
-    context = ssl.create_default_context()
-    server = smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context)
+    context = create_default_context()
+    server = SMTP_SSL(constants.smtp_server, constants.port, context=context)
     return server
 
-def server_login(server, password):
-    email = sender_email    
-    server.login(email, password)
 
-def server_send_email(server, receiver_email, message):
-    receiver_email = receiver_email
-    sender_email = sender_email
-    subject = "Email from ticketmaster Best Seat App"
+def server_login(server: SMTP_SSL, password: str):
+    return server.login(constants.sender_email, password)
 
+
+def auth_server(server: SMTP_SSL):
+    server_login(server, constants.app_password)
+
+
+server = init_server()
+# auth_server(server)
+
+
+def server_send_email(server: SMTP_SSL, receiver_emails: list[str], message: str):
     em = EmailMessage()
-    em['From'] = sender_email
-    em['To'] = receiver_email
-    em['subject'] = subject
+    em['From'] = constants.sender_email
+    em['To'] = receiver_emails
+    em['subject'] = constants.subject
 
     em.set_content(message)
-    server.sendmail(sender_email, receiver_email, em.as_string())
-
-def send_email(receiver_email, message):
-    server = init_server()
-    server_login(server, password)
-    server_send_email(server, receiver_email, message)
+    return server.sendmail(constants.sender_email, receiver_emails, em.as_string())
 
 
-send_email(["Frank.Qixiang.Gao@gmail.com"], password)
+def send_email(receiver_emails: list[str], message: str):
+    try:
+        err = server_send_email(server, receiver_emails, message)
+        if err is not None:
+            raise Exception('could not send email to the receiver')
+    except Exception as ex:
+        print(ex)
