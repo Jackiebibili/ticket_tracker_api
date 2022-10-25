@@ -1,5 +1,5 @@
-# from .scheduler_process import SchedulerProcess
-# from .mail_scheduler_child_process import child_process
+from ..connection.sender import Sender
+from ..constants import SERVICE_LOCALHOST, MAIL_RECEIVER_PORT
 
-# mail_scheduler = SchedulerProcess(child_process)
-# mail_scheduler.start()
+
+mail_scheduler = Sender(SERVICE_LOCALHOST, MAIL_RECEIVER_PORT)

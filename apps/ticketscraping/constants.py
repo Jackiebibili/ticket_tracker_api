@@ -1,5 +1,9 @@
-from functools import reduce
 from uuid import uuid4
+
+# services - async action handlers
+ASYNC_TASKS_RECEIVER_PORT = 8100
+MAIL_RECEIVER_PORT = 8200
+SERVICE_LOCALHOST = 'localhost'
 
 ANTIBOT_JS_CODE_URL = "https://epsf.ticketmaster.com/eps-d"
 TOKEN_INTERROGATION_URL = "https://epsf.ticketmaster.com/eps-d?d=www.ticketmaster.com"
