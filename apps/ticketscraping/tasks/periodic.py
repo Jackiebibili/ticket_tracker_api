@@ -1,7 +1,6 @@
 from ...storage.storage import find_many, insert_many, delete_many
 from ...ticketscraping import constants
 from ..models.pick import Pick
-from ..schedulers.async_tasks_scheduler import async_tasks_scheduler
 
 def generate_picks_set_from_picks(picks):
    def __helper(pick: dict):
@@ -39,7 +38,8 @@ def insert_history_seats(seats: set[Pick]):
    return insert_many(constants.DATABASE['BEST_HISTORY_SEATS'], list(map(lambda seat: vars(seat), seats)))
 
 
-def run_periodic_task(picks, scraping_id: str, target_price: int):
+
+def run_periodic_task(picks: dict, scraping_id: str):
    # B the list of new best available seats
    new_best_avail = generate_picks_set_from_picks(picks)
    # A be the list of current best available seats
@@ -65,5 +65,7 @@ def run_periodic_task(picks, scraping_id: str, target_price: int):
    # Save C to best_history_seats.
    insert_history_seats(overwritten_seats)
 
+   # TODO
    # Use D to invoke a handler to analyze them against the best_history_seats asynchronously.
-   async_tasks_scheduler.send(new_seats, scraping_id, target_price)
+   
+   pass
