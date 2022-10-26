@@ -25,9 +25,10 @@ def server_send_email(server: SMTP_SSL, receiver_emails: list[str], message: str
 
 
 def send_email(receiver_emails: list[str], messages: list[str]):
+    global server
     if len(messages) == 0:
         return
-    # print(messages[0])
+    # print(receiver_emails, messages[0])
     try:
         err = server_send_email(server, receiver_emails, messages[0])
         if err is not None:
