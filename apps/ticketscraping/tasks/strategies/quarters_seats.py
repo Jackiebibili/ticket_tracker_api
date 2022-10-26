@@ -4,7 +4,7 @@ from ....storage.query import find_max, find_min, find_many_ascending_order
 from ....ticketscraping import constants
 from ...models.pick import Pick
 from ..util.math import percentile
-
+from ....pushnotification.msg_formatter import format_entire_mail
 
 class QuartersSeats():
     top_better_history_seats_sort = [
@@ -15,6 +15,8 @@ class QuartersSeats():
         self._scraping_id = scraping_id
         self.target_price = target_price
         self.percentile = 1.0
+        self._num_before = 0
+        self._num_total = 0
 
     def __lt__(self, other):
         # smaller the percentile, better the pick
@@ -32,17 +34,23 @@ class QuartersSeats():
         return self._scraping_id
 
     def get_alert_content(self):
-        # alert user
-        # Find the exact same seat based on(sec, row?, seat?)
+        # alert user with content
+        # new seat info (price, sec, row?, seats?)
+        # new seat rank, total, and percentile
+        cur_rank_new_seat = self._num_before + 1
+        cur_total = self._num_total + 1
+        percentile = self.percentile
+        # top best history seats: used for comparison
+        top_best_history_seats = self.get_top_better_history_seats()
+        # all history seats: used for comparison
+        
+        # exact same seat in the history based on (sec, row?, seat?)
         same_seats = self.get_exact_same_seats()
-        # rank = self._num_before + 1
-        # top best history = get_top_better_history_seats()
         # notify user with info
-        return ''
-        pass
+        return format_entire_mail(pick=self.pick, target_price=self.target_price, percentile=percentile, rank=cur_rank_new_seat, num_total=cur_total, top_history_seats=top_best_history_seats, same_seats=same_seats)
 
-    def get_top_better_history_seats(self):
-        return self.find_better_history_seats(sort=self.top_better_history_seats_sort)
+    def get_top_better_history_seats(self, limit=constants.TOP_COMPARED_HISTORY_SEATS):
+        return self.find_better_history_seats(sort=self.top_better_history_seats_sort, limit=limit)
 
     def shouldAlert(self):
         try:
@@ -74,6 +82,8 @@ class QuartersSeats():
     def get_percentile(self):
         self._num_before = self.count_better_history_seats()
         self._num_total = self.count_quarters_history_seats()
+        if self._num_total < constants.MINIMUM_HISTORY_DATA:
+            raise Exception('no enough history seats data(count < 3)')
         self.percentile = percentile(self._num_before, self._num_total)
         return self.percentile
 
@@ -99,16 +109,8 @@ class QuartersSeats():
     def __get_better_history_seats_filter__(self):
         return {
             "scraping_id": self._scraping_id,
-            "$or": [
-               {
-                   "price": {"$lt": self._pick.price},
-                   "quality": {"$gte": self._pick.quality},
-               },
-                {
-                   "price": {"$lte": self._pick.price},
-                   "quality": {"$gt": self._pick.quality},
-               }
-            ]
+            "price": {"$lte": self._pick.price},
+            "quality": {"$gte": self._pick.quality},
         }
 
     def find_better_history_seats(self, **kwargs):

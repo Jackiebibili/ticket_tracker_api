@@ -29,7 +29,6 @@ def run():
     from apps.ticketscraping.connection.asyn_tasks_receiver import run
     conn_process = Process(target=run)
     conn_process.start()
-    conn_process.join()
 
 
 class MyAppConfig(AppConfig):

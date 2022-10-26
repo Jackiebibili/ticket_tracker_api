@@ -10,21 +10,35 @@ from .prepare_reese84token import getReese84Token
 from ..storage.storage import *
 from .seat_analysis import format_seats
 from .tasks.periodic import run_periodic_task
+import traceback
 
 class Reese84TokenUpdating():
     def __init__(self):
         self.is_running = False
-        self.reese84_token = ''
+        self._reese84_token = ''
         self.reese84_renewInSec = 0
+        self.token_access_semaphore = Semaphore(1) # one can access at a time
         self.token_semaphore = Semaphore(0)
         self.scheduler = sched.scheduler(time.time, time.sleep)
+
+    @property
+    def reese84_token(self):
+        self.token_semaphore.acquire()
+        self.token_access_semaphore.acquire()
+        token = self._reese84_token
+        self.token_semaphore.release()
+        self.token_access_semaphore.release()
+
+        return token
 
     def initialize_reese84_token(self):
         """
         This method should not be called directly.
         """
-        self.reese84_token, self.reese84_renewInSec = getReese84Token()
-        self.token_semaphore.release()  # produce a new token
+        self.token_access_semaphore.acquire()
+        self._reese84_token, self.reese84_renewInSec = getReese84Token()
+        self.token_semaphore.release() # produce a new token
+        self.token_access_semaphore.release()
         self.scheduler.enter(self.reese84_renewInSec -
                              constants.TOKEN_RENEW_SEC_OFFSET, constants.TOKEN_RENEW_PRIORITY, self.renew_reese84_token)
 
@@ -34,8 +48,10 @@ class Reese84TokenUpdating():
         """
         print("renewing token")
         self.token_semaphore.acquire()  # invalidate a token
-        self.reese84_token = getReese84Token()
-        self.token_semaphore.release()
+        self.token_access_semaphore.acquire()
+        self._reese84_token, self.reese84_renewInSec = getReese84Token()
+        self.token_semaphore.release()  # produce a token
+        self.token_access_semaphore.release()
         self.scheduler.enter(self.reese84_renewInSec -
                              constants.TOKEN_RENEW_SEC_OFFSET, constants.TOKEN_RENEW_PRIORITY, self.renew_reese84_token)
 
@@ -49,7 +65,7 @@ class Reese84TokenUpdating():
 
 
 class TicketScraping(threading.Thread):
-    def __init__(self, token_generator: Reese84TokenUpdating, event_id: str, subscribe_id: str, num_seats: int, target_price: int, tolerance: int):
+    def __init__(self, token_generator: Reese84TokenUpdating, event_id: str, subscribe_id: str, num_seats: int, target_price: int, tolerance: int, emails: list[str]):
         threading.Thread.__init__(self)
         self.is_running = False
         self.is_stopping = False
@@ -58,6 +74,7 @@ class TicketScraping(threading.Thread):
         self.num_seats = num_seats
         self.target_price = target_price
         self.tolerance = tolerance
+        self.emails = emails
         self.token_gen = token_generator
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.initialDelay = random.randint(
@@ -77,25 +94,26 @@ class TicketScraping(threading.Thread):
             print(f'Failed to terminate the thread with id={thread_id}')
 
     def ticket_scraping(self):
-        if self.token_gen.token_semaphore._value <= 0:
-            # phase: retry after a delay
-            self.scheduler.enter(constants.TICKET_SCRAPING_TOKEN_AWAIT_MAX_INTERVAL,
-                                 constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
-            return
         # scrape the top-picks from ticketmaster
         top_picks_url = constants.get_top_picks_url(self.event_id)
         top_picks_q_params = constants.get_top_picks_query_params(
             self.num_seats, self.target_price, self.tolerance)
         top_picks_header = constants.get_top_picks_header()
-        res = requests.get(top_picks_url, headers=top_picks_header, params=top_picks_q_params,
-                           cookies=dict(reese84=self.token_gen.reese84_token))  # type: ignore
-
+        res = None
+        try:
+            res = requests.get(top_picks_url, headers=top_picks_header, params=top_picks_q_params,
+                               cookies=dict(reese84=self.token_gen.reese84_token))  # type: ignore
+        except Exception:
+            # retry after a delay
+            self.scheduler.enter(constants.TICKET_SCRAPING_TOKEN_AWAIT_MAX_INTERVAL,
+                                 constants.TICKET_SCRAPING_PRIORITY, self.ticket_scraping)
+            return
         # prune and format the received picks
         picks_obj = format_seats(res.json(), self.subscribe_id)
 
         # periodic task: update collections best_available_seats and best_history_seats
         # and automatically spawn async tasks
-        run_periodic_task(picks_obj, self.subscribe_id, self.target_price)
+        run_periodic_task(picks_obj, self.subscribe_id, self.target_price, self.emails)
 
         print("Got the ticket info from TM. /", res.status_code)
         self.scheduler.enter(constants.TICKET_SCRAPING_INTERVAL,
@@ -116,9 +134,9 @@ class TicketScraping(threading.Thread):
                 return
             self.is_running = True
             self.is_stopping = False
-            self.ticket_scraping()
             # randomize start time to scatter out event of API fetching
             time.sleep(self.initialDelay)
+            self.ticket_scraping()
             self.scheduler.run()
         finally:
             print(
@@ -137,7 +155,7 @@ def start():
                        '$or': [{'markPaused': {'$exists': False}}, {'markPaused': False}]})
     for evt in events:
         ticket_scraping = TicketScraping(
-            reese_token_gen, evt["tm_event_id"], evt["_id"], evt["ticket_num"], evt["target_price"], evt["tolerance"])
+            reese_token_gen, evt["tm_event_id"], evt["_id"], evt["ticket_num"], evt["target_price"], evt["tolerance"], evt["client_emails"])
         print(ticket_scraping.initialDelay, "s")
         scraping_list[ticket_scraping.subscribe_id] = ticket_scraping
     for scraping_thread in scraping_list.values():
@@ -158,7 +176,7 @@ def start():
                     # spawn a thread to do scraping operations
                     full_doc = change['fullDocument']
                     ticket_scraping = TicketScraping(
-                        reese_token_gen, full_doc["tm_event_id"], full_doc["_id"], full_doc["ticket_num"], full_doc["target_price"], full_doc["tolerance"])
+                        reese_token_gen, full_doc["tm_event_id"], full_doc["_id"], full_doc["ticket_num"], full_doc["target_price"], full_doc["tolerance"], full_doc["client_emails"])
                     print(ticket_scraping.initialDelay, "s")
                     scraping_list[ticket_scraping.subscribe_id] = ticket_scraping
                     ticket_scraping.start()
@@ -179,7 +197,7 @@ def start():
                         # resume scraping if currently paused
                         if doc_id not in scraping_list:
                             ticket_scraping = TicketScraping(
-                                reese_token_gen, full_doc["tm_event_id"], full_doc["_id"], full_doc["ticket_num"], full_doc["target_price"], full_doc["tolerance"])
+                                reese_token_gen, full_doc["tm_event_id"], full_doc["_id"], full_doc["ticket_num"], full_doc["target_price"], full_doc["tolerance"], full_doc["client_emails"])
                             print(ticket_scraping.initialDelay, "s")
                             scraping_list[ticket_scraping.subscribe_id] = ticket_scraping
                             ticket_scraping.start()

@@ -6,7 +6,7 @@ from .strategies.quarters_seats import QuartersSeats
 from ..schedulers.mail_scheduler import mail_scheduler
 
 
-def run_async_tasks(picks: typing.Iterable[Pick], scraping_id: str, target_price: int):
+def run_async_tasks(picks: typing.Iterable[Pick], scraping_id: str, target_price: int, emails: list[str]):
     picks_size = len(list(picks))
     if picks_size == 0: return
 
@@ -30,7 +30,7 @@ def run_async_tasks(picks: typing.Iterable[Pick], scraping_id: str, target_price
     # get the alert information
     alert_contents = list(map(lambda qs: qs.get_alert_content(), alert_seats))  # type: ignore
     # send the alert to user
-    mail_scheduler.send(alert_contents)
+    mail_scheduler.send(emails, alert_contents)
 
 
 def run_async_task(pick: Pick, scraping_id: str, target_price: int):

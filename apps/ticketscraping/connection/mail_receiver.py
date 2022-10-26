@@ -1,11 +1,11 @@
 from apps.ticketscraping.connection.receiver_process import ReceiverProcess
-# from ..tasks.asynchronous import run_async_tasks
+from apps.pushnotification.smtp import send_email, auth_server
 from apps.ticketscraping.constants import SERVICE_LOCALHOST, MAIL_RECEIVER_PORT
 
 def run():
    # start itself
-   receiver = ReceiverProcess(lambda x: print(
-       x), SERVICE_LOCALHOST, MAIL_RECEIVER_PORT)
+   auth_server()
+   receiver = ReceiverProcess(send_email, SERVICE_LOCALHOST, MAIL_RECEIVER_PORT)
    receiver.connect()
    receiver.serve_forever()
 

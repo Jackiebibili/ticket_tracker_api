@@ -14,14 +14,6 @@ def server_login(server: SMTP_SSL, password: str):
     return server.login(constants.sender_email, password)
 
 
-def auth_server(server: SMTP_SSL):
-    server_login(server, constants.app_password)
-
-
-server = init_server()
-# auth_server(server)
-
-
 def server_send_email(server: SMTP_SSL, receiver_emails: list[str], message: str):
     em = EmailMessage()
     em['From'] = constants.sender_email
@@ -32,10 +24,21 @@ def server_send_email(server: SMTP_SSL, receiver_emails: list[str], message: str
     return server.sendmail(constants.sender_email, receiver_emails, em.as_string())
 
 
-def send_email(receiver_emails: list[str], message: str):
+def send_email(receiver_emails: list[str], messages: list[str]):
+    if len(messages) == 0:
+        return
+    # print(messages[0])
     try:
-        err = server_send_email(server, receiver_emails, message)
+        err = server_send_email(server, receiver_emails, messages[0])
         if err is not None:
             raise Exception('could not send email to the receiver')
     except Exception as ex:
         print(ex)
+
+
+server = init_server()
+
+
+def auth_server():
+    global server
+    server_login(server, constants.app_password)
