@@ -6,17 +6,17 @@ from apps.ticketscraping.constants import SERVICE_LOCALHOST, ASYNC_TASKS_RECEIVE
 
 
 def run_prepare():
-   # start receiver socket
-   from apps.ticketscraping.connection.mail_receiver import run
-   conn_process = Process(target=run, daemon=True)
-   conn_process.start()
+   # # start receiver socket
+   # from apps.ticketscraping.connection.mail_receiver import run
+   # conn_process = Process(target=run, daemon=True)
+   # conn_process.start()
 
-   # start sender socket
-   from apps.ticketscraping.schedulers.mail_scheduler import mail_scheduler
-   conn_thread = Thread(target=mail_scheduler.connect)
-   conn_thread.start()
-   # wait for mailer to connect
-   conn_thread.join()
+   # # start sender socket
+   # from apps.ticketscraping.schedulers.mail_scheduler import mail_scheduler
+   # conn_thread = Thread(target=mail_scheduler.connect)
+   # conn_thread.start()
+   # # wait for mailer to connect
+   # conn_thread.join()
 
    # start itself
    from apps.ticketscraping.tasks.asynchronous import run_async_tasks
