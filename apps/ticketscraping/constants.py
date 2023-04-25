@@ -82,4 +82,5 @@ TICKET_SCRAPING_TOKEN_AWAIT_MAX_INTERVAL = 10
 
 INJECTOR_LOCATION = "js/injector.js"
 INJECTOR_HEADER_LOCATION = "js/injector-header.js"
+EPSF_CONTENT = "js/epsf.js"
 RENNABLE_FILENAME = "js/antibot-simulation.js"
