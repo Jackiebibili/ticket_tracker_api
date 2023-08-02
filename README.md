@@ -12,4 +12,4 @@ Serves as the back end of concert ticket price tracking based on Ticketmaster re
   - Use Dockerfile to build a container image.
 
 ### August 1, 2023 Update
-Reese84 code stopped working as TicketMaster implement a new anti-bot mechanism as of Aug 1. We will try to git it fixed.
+Reese84 code stopped working as TicketMaster implement a new anti-bot mechanism as of Aug 1. We will try to get it fixed.
