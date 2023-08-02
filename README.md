@@ -10,3 +10,6 @@ Serves as the back end of concert ticket price tracking based on Ticketmaster re
   - If __node-canvas__ in `node_modules` fails to install, please check if you have the correct prerequisite softwares installed on your machine. The detail can be found at https://github.com/Automattic/node-canvas/wiki#installation-guides based on your system.
 - Prod environment
   - Use Dockerfile to build a container image.
+
+### August 1, 2023 Update
+Reese84 code stopped working as TicketMaster implement a new anti-bot mechanism as of Aug 1. We will try to git it fixed.
